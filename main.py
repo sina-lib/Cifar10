@@ -54,3 +54,5 @@ if __name__ == '__main__':
     plt.figure()
     plt.imshow(data[44])
     plt.show()
+
+    
