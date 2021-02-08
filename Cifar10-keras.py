@@ -12,6 +12,7 @@ class_names = ['airplane', 'automobile', 'bird', 'cat', 'deer',
 
 def Load_Cifar10():
     data = np.array([])
+    test_data = np.array([])
     labels = []
     with open('DS/cifar-10-batches-py/data_batch_1','rb') as fo:
         dic = pickle.load(fo, encoding='bytes')
@@ -33,26 +34,35 @@ def Load_Cifar10():
 
     labels.extend(labels_t)
 
+
+    # test batch
+    with open("DS/cifar-10-batches-py/test_batch", 'rb') as fo:
+        dic = pickle.load(fo, encoding='bytes')
+    data_t = dic[b'data']
+    labels_t = dic[b'labels']
+
+    test_data = data_t.reshape(10000, 3, 32,32).transpose(0,2,3,1)
+
     data = np.append(data_b1, data_b2)
     data = data.reshape(20000, 3, 32,32).transpose(0,2,3,1)
-    return data,labels
+    return (data,labels),(test_data,labels_t)
 
 
 
 
 if __name__ == '__main__':
-    data, labels = Load_Cifar10()
+    (train_data, train_labels), (test_data, test_labels) = Load_Cifar10()
 
-    print("data contains: ", len(labels), "labels")
+    print("data contains: ", len(train_labels), "labels")
     # print("filenames: ", filenames[0:3])
-    print("first 3 labels: ", labels[0:3])
-    print("data 0 dimension: ", data[0].shape)
+    print("first 3 labels: ", train_labels[0:3])
+    print("data 0 dimension: ", train_data[0].shape)
 
-    print(data.shape)
-    print(class_names[labels[44]])
+    print(train_data.shape)
+    print(class_names[train_labels[44]]) # for example No. 44
 
     plt.figure()
-    plt.imshow(data[44])
+    plt.imshow(train_data[44])
     plt.show()
 
-    
+    # build a Model
