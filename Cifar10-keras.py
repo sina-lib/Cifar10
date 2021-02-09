@@ -90,7 +90,7 @@ if __name__ == '__main__':
     model.compile(loss='categorical_crossentropy',optimizer='adam', metrics=['accuracy'])
 
     # train the network
-    model.fit(train_data,train_labels, batch_size=500, validation_split=0.2, verbose=1, epochs=20)
+    model.fit(train_data,train_labels, batch_size=100, validation_split=0.2, verbose=1, epochs=10)
 
     predict_labels = model.predict(test_data)
     predict_labels = enc_10c.inverse_transform(predict_labels)
@@ -102,6 +102,6 @@ if __name__ == '__main__':
         for j in range(k):
             plt.subplot(k,k, i*k+j+1)
             plt.imshow(test_data[i*k+j])
-            plt.title( class_names[predict_labels[int(i*k+j)]] )
+            plt.title( class_names[predict_labels[ i*k+j , 0]] )
 
     plt.show()
