@@ -3,6 +3,7 @@ from tensorflow.keras import datasets,layers, models
 import matplotlib.pyplot as plt
 import numpy as np
 import pickle
+from sklearn.preprocessing import OneHotEncoder
 
 # from sklearn.datasets import fetch_mldata
 
@@ -61,8 +62,46 @@ if __name__ == '__main__':
     print(train_data.shape)
     print(class_names[train_labels[44]]) # for example No. 44
 
-    plt.figure()
-    plt.imshow(train_data[44])
-    plt.show()
+    # plt.figure()
+    # plt.imshow(train_data[44])
+    # plt.show()
+
+    # convert output class number to one-hot vector:
+    enc_10c = OneHotEncoder(sparse=False)
+    train_labels = enc_10c.fit_transform(np.array(train_labels).reshape(-1,1))
+    # test_labels = enc_10c.fit_transform(np.array(test_labels).reshape(-1,1))
 
     # build a Model
+    model = models.Sequential()
+
+    # define layers
+    model.add(layers.Conv2D( 32, kernel_size=(3,3), activation='relu', input_shape=(32,32,3)))
+    model.add(layers.MaxPool2D(pool_size=(2,2)))
+    model.add(layers.Conv2D( 120, kernel_size=(3,3), activation='relu'))
+    model.add(layers.MaxPool2D(pool_size=(2,2)))
+    model.add(layers.Dropout(0.2))
+    model.add(layers.Conv2D( 60, kernel_size=(3,3), activation='relu'))
+    model.add(layers.MaxPool2D(pool_size=(2,2)))
+    model.add(layers.Flatten())
+    model.add(layers.Dense(30,activation='relu'))
+    model.add(layers.Dense(50,activation='relu'))
+    model.add(layers.Dense(10,activation='softmax'))
+
+    model.compile(loss='categorical_crossentropy',optimizer='adam', metrics=['accuracy'])
+
+    # train the network
+    model.fit(train_data,train_labels, batch_size=500, validation_split=0.2, verbose=1, epochs=20)
+
+    predict_labels = model.predict(test_data)
+    predict_labels = enc_10c.inverse_transform(predict_labels)
+
+    # demonstrate some predictions:
+    plt.figure()
+    k=4
+    for i in range(k):
+        for j in range(k):
+            plt.subplot(k,k, i*k+j+1)
+            plt.imshow(test_data[i*k+j])
+            plt.title( class_names[predict_labels[int(i*k+j)]] )
+
+    plt.show()
